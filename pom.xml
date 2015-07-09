@@ -6,33 +6,32 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <!-- Baseline Jenkins version you use to build and test the plugin. Users must have this version or newer to run. -->
-        <version>1.580.1</version>
-        <relativePath/>
+        <version>1.554.1</version>
     </parent>
-    <groupId>com.jd.hzqa</groupId>
-    <artifactId>topic-coverageDump-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>hpi</packaging>
 
-    <name>Dump Coverage Snapshot</name>
-    <description>This plugin can show the coverage of app in real time</description>
-    <url>https://wiki.jenkins-ci.org/display/JENKINS/TODO+Plugin</url>
     <licenses>
         <license>
             <name>MIT License</name>
             <url>http://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
-    <!-- If you want this to appear on the wiki page:
+
+    <groupId>com.jd.hzqa</groupId>
+    <artifactId>topic-coverageDump-plugin</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>hpi</packaging>
+    <name>Dump Coverage Snapshot</name>
+    <description>This plugin can show the coverage of app in real time</description>
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/TODO+Plugin</url>
+
     <developers>
-      <developer>
-        <id>bhacker</id>
-        <name>Bob Q. Hacker</name>
-        <email>bhacker@nowhere.net</email>
-      </developer>
+        <developer>
+            <id>wy</id>
+            <name>QQS</name>
+            <email>qianqingsong@gmail.com</email>
+        </developer>
     </developers>
-    -->
+
     <!-- Assuming you want to host on @jenkinsci:
     <scm>
       <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
@@ -48,6 +47,57 @@
     </properties>
 
 
+    <dependencies>
+        <dependency>
+            <groupId>org.jvnet.hudson.plugins</groupId>
+            <artifactId>analysis-core</artifactId>
+            <version>1.54</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>config-file-provider</artifactId>
+            <version>2.7.1</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>token-macro</artifactId>
+            <version>1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>mailer</artifactId>
+            <version>1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>script-security</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>1.8.5</version>
+        </dependency>
+
+        <!--&lt;!&ndash; If you want to depend on other plugins:-->
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>credentials</artifactId>
+            <version>1.9.4</version>
+        </dependency>
+        <!--&ndash;&gt;-->
+    </dependencies>
+
+
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
@@ -60,59 +110,7 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-    <!-- If you want to depend on other plugins:
-    <dependencies>
-      <dependency>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>credentials</artifactId>
-        <version>1.9.4</version>
-      </dependency>
-    </dependencies>
-    -->
-    <!--qqs add ####################################################-->
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
 
-                    <!-- Attention Eclipse users: if you see an error here, you
-                       have to install the M2E buildhelper plugin. -->
-                    <execution>
-                        <id>add-localizer-source-folder</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-sources/localizer</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.jenkins-ci.tools</groupId>
-                <artifactId>maven-hpi-plugin</artifactId>
-                <version>1.95</version>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>hpi</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <pluginFirstClassLoader>true</pluginFirstClassLoader>
-                    <maskClasses>org.objectweb.asm.</maskClasses>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-    <!--qqs add ####################################################-->
 
 
 </project>
