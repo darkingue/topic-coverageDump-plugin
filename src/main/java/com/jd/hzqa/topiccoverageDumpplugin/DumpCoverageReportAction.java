@@ -2,11 +2,13 @@ package com.jd.hzqa.topiccoverageDumpplugin;
 
 import hudson.model.AbstractProject;
 import hudson.model.Action;
+import org.apache.log4j.Logger;
 
 /**
  * Created by qqs on 15/7/9.
  */
 public class DumpCoverageReportAction implements Action {
+    private final static Logger LOG = Logger.getLogger(DumpCoverageReportAction.class.getName());
 
     private final AbstractProject<?, ?> project;
 
