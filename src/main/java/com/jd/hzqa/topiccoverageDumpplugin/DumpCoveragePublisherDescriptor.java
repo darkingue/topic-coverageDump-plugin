@@ -55,7 +55,9 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
     }
 
     public boolean isAdminRequiredForTemplateTesting() {
-        return requireAdminForTemplateTesting;
+        System.out.println("#############" + requireAdminForTemplateTesting);
+//        return requireAdminForTemplateTesting;
+        return false;
     }
 
     public List<GroovyScriptPath> getDefaultClasspath() {
@@ -66,11 +68,22 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
         return true;
     }
 
+    public DumpCoveragePublisherDescriptor() {
+        super(DumpCoveragePublisher.class);
+        load();
+    }
+
     @Override
     public boolean configure(StaplerRequest req, JSONObject formData)
             throws FormException {
 
-        requireAdminForTemplateTesting = req.hasParameter("ext_mailer_require_admin_for_template_testing");
+        if (req.hasParameter("ext_mailer_require_admin_for_template_testing")) {
+            requireAdminForTemplateTesting = nullify(req.getParameter("ext_mailer_list_id")) != null;
+        } else {
+            requireAdminForTemplateTesting = false;
+        }
+
+        //        requireAdminForTemplateTesting =req.hasParameter("ext_mailer_require_admin_for_template_testing");
 
         //        // specify List-ID information
         //        if (req.hasParameter("ext_mailer_use_list_id")) {
@@ -78,6 +91,7 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
         //        } else {
         //            listId = null;
         //        }
+        requireAdminForTemplateTesting = false;
 
         save();
         return super.configure(req, formData);
