@@ -17,6 +17,7 @@ import java.util.Collections;
 /**
  * Created by qqs on 15/7/9.
  */
+@Extension
 public class DumpCoverageReportActionFactory extends TransientProjectActionFactory {
 
     @Override

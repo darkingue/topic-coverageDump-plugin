@@ -10,8 +10,7 @@ def d = namespace("jelly:define")
 import hudson.Functions
 
 def requiresAdmin = app.getDescriptor("com.jd.hzqa.topiccoverageDumpplugin.DumpCoveragePublisher").adminRequiredForTemplateTesting
-//def hasPermission = requiresAdmin ? hudson.Functions.hasPermission(app.ADMINISTER) : hudson.Functions.hasPermission(it.project, it.project.CONFIGURE);
-def hasPermission = true;
+def hasPermission = requiresAdmin ? hudson.Functions.hasPermission(app.ADMINISTER) : hudson.Functions.hasPermission(it.project, it.project.CONFIGURE);
 l.layout {
     st.include(it: my.project, page: "sidepanel")
     l.main_panel {

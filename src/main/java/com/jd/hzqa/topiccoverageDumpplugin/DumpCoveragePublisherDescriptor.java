@@ -11,6 +11,7 @@ import jenkins.model.Jenkins;
 import jenkins.model.JenkinsLocationConfiguration;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -31,6 +32,7 @@ import java.util.Properties;
  */
 @Extension
 public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<Publisher> {
+    private final static Logger LOG = Logger.getLogger(DumpCoveragePublisherDescriptor.class.getName());
 
     /**
      * Jenkins's own URL, to put into the e-mail.
@@ -55,9 +57,8 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
     }
 
     public boolean isAdminRequiredForTemplateTesting() {
-        System.out.println("#############" + requireAdminForTemplateTesting);
-//        return requireAdminForTemplateTesting;
-        return false;
+        LOG.debug("#############" + requireAdminForTemplateTesting);
+        return requireAdminForTemplateTesting;
     }
 
     public List<GroovyScriptPath> getDefaultClasspath() {
@@ -77,13 +78,13 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
     public boolean configure(StaplerRequest req, JSONObject formData)
             throws FormException {
 
-        if (req.hasParameter("ext_mailer_require_admin_for_template_testing")) {
-            requireAdminForTemplateTesting = nullify(req.getParameter("ext_mailer_list_id")) != null;
-        } else {
-            requireAdminForTemplateTesting = false;
-        }
+        //        if (req.hasParameter("ext_mailer_require_admin_for_template_testing")) {
+        //            requireAdminForTemplateTesting = nullify(req.getParameter("ext_mailer_list_id")) != null;
+        //        } else {
+        //            requireAdminForTemplateTesting = false;
+        //        }
 
-        //        requireAdminForTemplateTesting =req.hasParameter("ext_mailer_require_admin_for_template_testing");
+        requireAdminForTemplateTesting = req.hasParameter("ext_mailer_require_admin_for_template_testing");
 
         //        // specify List-ID information
         //        if (req.hasParameter("ext_mailer_use_list_id")) {
@@ -91,8 +92,6 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
         //        } else {
         //            listId = null;
         //        }
-        requireAdminForTemplateTesting = false;
-
         save();
         return super.configure(req, formData);
     }
