@@ -1,4 +1,4 @@
-package com.jd.hzqa.topiccoverageDumpplugin.EmailExtTemplateAction
+package com.jd.hzqa.topiccoverageDumpplugin.DumpCoverageReportAction
 // Namespaces
 def l = namespace(lib.LayoutTagLib)
 def j = namespace("jelly:core")
@@ -32,7 +32,8 @@ l.layout {
             }"""
         h1(my.displayName)
         if (hasPermission) {
-            h3(_("description"))
+            h3(newString(_("description".getBytes()), "GBK"))
+//            h3(_("description"))
             form(action: "", method: "post", name: "templateTest", onSubmit: "return onSubmit();") {
                 table {
                     f.entry(title: _("Jelly/Groovy Template File Name")) {
