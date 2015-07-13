@@ -46,7 +46,7 @@ l.layout {
                         }
                     }
                     f.entry {
-                        f.submit(value: _("Go!"))
+                        f.submit(value: _("DUMP NOW!"))
                     }
                 }
             }
