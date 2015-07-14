@@ -7,5 +7,6 @@ st = namespace("jelly:stapler")
 t = namespace("/lib/hudson")
 
 f.section(title: _("Extended DumpCoverageConfig")) {
-    f.optionalBlock(help: "/plugin/email-ext/help/globalConfig/requireAdmin.html", checked: descriptor.isAdminRequiredForTemplateTesting(), name: "ext_mailer_require_admin_for_template_testing", title: _("Require Administrator for Template Testing"))
+    f.optionalBlock(help: "/plugin/topic-coverageDump-plugin/help/globalConfig/requireAdmin.html", checked: descriptor
+            .isAdminRequiredForTemplateTesting(), name: "ext_mailer_require_admin_for_template_testing", title: _("Require Administrator for Template Testing"))
 }
