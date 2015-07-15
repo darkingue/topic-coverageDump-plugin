@@ -87,7 +87,11 @@
             <artifactId>groovy-all</artifactId>
             <version>1.8.5</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.wangyin</groupId>
+            <artifactId>qa.tools.topic.coverage</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!--&lt;!&ndash; If you want to depend on other plugins:-->
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
@@ -110,7 +114,6 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-
 
 
 </project>

@@ -108,4 +108,12 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
     //        return "/plugin/email-ext/help/main.html";
     //    }
 
+    /*
+    * 提供校验参数的 url 访问形式
+    * */
+    public FormValidation doAgentPortCheck(@QueryParameter final String value)
+            throws IOException, ServletException {
+        return new ParameterCheckUtils().validateFormParameter_1(value);
+    }
+
 }

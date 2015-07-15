@@ -1,5 +1,7 @@
 package com.jd.hzqa.topiccoverageDumpplugin;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import groovy.lang.GroovyClassLoader;
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregatable;
@@ -14,10 +16,14 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DumpCoveragePublisher extends Notifier implements MatrixAggregatable {
+    private static final Logger LOGGER = Logger.getLogger(DumpCoveragePublisher.class.getName());
 
     public List<GroovyScriptPath> classpath;
+    public boolean disabled = false;
 
     @Override
     public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
@@ -32,34 +38,21 @@ public class DumpCoveragePublisher extends Notifier implements MatrixAggregatabl
         return true;
     }
 
-    public BuildStepMonitor getRequiredMonitorService() {
-        return null;
+    private boolean _perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener,
+            boolean forPreBuild) {
+        if (disabled) {
+            listener.getLogger().println("Extended Email Publisher is currently disabled in project settings");
+            return true;
+        }
+
+        //执行 dump 操作
+        LOGGER.info("执行 dumpCoverage success!");
+        //
+        return true;
     }
 
-    /**
-     * Expand the plugin class loader with URL taken from the project descriptor and the global configuration.
-     *
-     * @param cl the original plugin classloader
-     * @param cc
-     * @return the new expanded classloader
-     */
-    private ClassLoader expandClassLoader(ClassLoader cl, CompilerConfiguration cc) {
-        if ((classpath != null) && classpath.size() > 0) {
-            cl = new GroovyClassLoader(cl, cc);
-            for (GroovyScriptPath path : classpath) {
-                ((GroovyClassLoader) cl).addURL(path.asURL());
-            }
-        }
-        List<GroovyScriptPath> globalClasspath = getDescriptor().getDefaultClasspath();
-        if ((globalClasspath != null) && (globalClasspath.size() > 0)) {
-            if (!(cl instanceof GroovyClassLoader)) {
-                cl = new GroovyClassLoader(cl, cc);
-            }
-            for (GroovyScriptPath path : globalClasspath) {
-                ((GroovyClassLoader) cl).addURL(path.asURL());
-            }
-        }
-        return cl;
+    public BuildStepMonitor getRequiredMonitorService() {
+        return BuildStepMonitor.NONE;
     }
 
     @Override
@@ -76,7 +69,30 @@ public class DumpCoveragePublisher extends Notifier implements MatrixAggregatabl
         return Jenkins.getInstance().getDescriptorByType(DumpCoveragePublisherDescriptor.class);
     }
 
-    public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
-        return null;
+    public MatrixAggregator createAggregator(MatrixBuild matrixbuild, Launcher launcher, BuildListener buildlistener) {
+
+        return new MatrixAggregator(matrixbuild, launcher, buildlistener) {
+            @Override
+            public boolean endBuild() throws InterruptedException, IOException {
+                LOGGER.log(Level.FINER, "end build of " + this.build.getDisplayName());
+
+                // Will be run by parent so we check if needed to be executed by parent
+                if (getMatrixTriggerMode().forParent) {
+                    return DumpCoveragePublisher.this._perform(this.build, this.launcher, this.listener, false);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean startBuild() throws InterruptedException, IOException {
+                LOGGER.log(Level.FINER, "end build of " + this.build.getDisplayName());
+                // Will be run by parent so we check if needed to be executed by parent
+                if (getMatrixTriggerMode().forParent) {
+                    return DumpCoveragePublisher.this._perform(this.build, this.launcher, this.listener, true);
+                }
+                return true;
+            }
+        };
     }
+}
 }
