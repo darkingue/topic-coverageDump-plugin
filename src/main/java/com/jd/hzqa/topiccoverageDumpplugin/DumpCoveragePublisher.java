@@ -2,52 +2,60 @@ package com.jd.hzqa.topiccoverageDumpplugin;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.wangyin.qa.tools.jacoco.JacocoUtil;
 import groovy.lang.GroovyClassLoader;
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
 import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixRun;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import jenkins.model.Jenkins;;
-import org.codehaus.groovy.control.CompilerConfiguration;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DumpCoveragePublisher extends Notifier implements MatrixAggregatable {
+/*
+* 构建完成自动执行的扩展
+* */
+public class DumpCoveragePublisher extends Notifier {
     private static final Logger LOGGER = Logger.getLogger(DumpCoveragePublisher.class.getName());
 
-    public List<GroovyScriptPath> classpath;
     public boolean disabled = false;
+    public String more = "12345";
+    private String recipients;
+    private boolean failureOnly;
+
+    @DataBoundConstructor
+    public DumpCoveragePublisher(String project_more, boolean project_disabled) {
+        super();
+        this.more = project_more;
+        this.disabled = project_disabled;
+    }
+
+    public DumpCoveragePublisher() {
+
+    }
 
     @Override
     public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
-
         return true;
     }
 
+    /*
+    * 构建完成后，Hudson会自动调用当前项目中所有Notifier（实际上应该是Pulisher）子类的的perform方法
+    * */
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
-
-        return true;
-    }
-
-    private boolean _perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener,
-            boolean forPreBuild) {
-        if (disabled) {
-            listener.getLogger().println("Extended Email Publisher is currently disabled in project settings");
-            return true;
-        }
-
-        //执行 dump 操作
-        LOGGER.info("执行 dumpCoverage success!");
-        //
+        System.out.println("构建完成! 执行 perform ############# " + more);
         return true;
     }
 
@@ -69,30 +77,4 @@ public class DumpCoveragePublisher extends Notifier implements MatrixAggregatabl
         return Jenkins.getInstance().getDescriptorByType(DumpCoveragePublisherDescriptor.class);
     }
 
-    public MatrixAggregator createAggregator(MatrixBuild matrixbuild, Launcher launcher, BuildListener buildlistener) {
-
-        return new MatrixAggregator(matrixbuild, launcher, buildlistener) {
-            @Override
-            public boolean endBuild() throws InterruptedException, IOException {
-                LOGGER.log(Level.FINER, "end build of " + this.build.getDisplayName());
-
-                // Will be run by parent so we check if needed to be executed by parent
-                if (getMatrixTriggerMode().forParent) {
-                    return DumpCoveragePublisher.this._perform(this.build, this.launcher, this.listener, false);
-                }
-                return true;
-            }
-
-            @Override
-            public boolean startBuild() throws InterruptedException, IOException {
-                LOGGER.log(Level.FINER, "end build of " + this.build.getDisplayName());
-                // Will be run by parent so we check if needed to be executed by parent
-                if (getMatrixTriggerMode().forParent) {
-                    return DumpCoveragePublisher.this._perform(this.build, this.launcher, this.listener, true);
-                }
-                return true;
-            }
-        };
-    }
-}
 }

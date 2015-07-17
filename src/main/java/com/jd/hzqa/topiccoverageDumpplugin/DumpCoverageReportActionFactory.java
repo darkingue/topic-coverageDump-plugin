@@ -10,6 +10,7 @@ import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.TransientProjectActionFactory;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +20,8 @@ import java.util.Collections;
  */
 @Extension
 public class DumpCoverageReportActionFactory extends TransientProjectActionFactory {
+
+    String agentport = "";
 
     @Override
     public Collection<? extends Action> createFor(AbstractProject target) {

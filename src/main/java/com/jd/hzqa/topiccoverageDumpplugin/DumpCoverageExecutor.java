@@ -12,11 +12,8 @@ public class DumpCoverageExecutor {
     String agentIP;
     int agentPort;
 
-    private void dumpInt() {
+    public static void dumpJaCoCoReport(String jobFile, String agentIP, int agentPort) {
 
-    }
-
-    private void dumpJaCoCoReport(String jobFile, String agentIP, int agentPort) {
         try {
             JacocoUtil.dump(jobFile, agentIP, agentPort);
         } catch (Exception e) {

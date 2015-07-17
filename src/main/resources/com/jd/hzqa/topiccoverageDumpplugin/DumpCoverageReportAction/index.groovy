@@ -8,6 +8,7 @@ def t = namespace("/lib/hudson")
 def d = namespace("jelly:define")
 
 import hudson.Functions
+import com.jd.hzqa.topiccoverageDumpplugin.DumpCoveragePublisher
 
 def url = "${rootURL}/plugin/topic-coverageDump-plugin/site/jacoco/index.html";
 def requiresAdmin = app.getDescriptor("com.jd.hzqa.topiccoverageDumpplugin.DumpCoveragePublisher").adminRequiredForTemplateTesting
@@ -17,6 +18,8 @@ l.layout {
     l.main_panel {
         st.bind(var: "templateTester", value: my)
         script """function onSubmit() {
+            var agentPort = document.getElementById('agent_Port').value;
+            var buildId = document.getElementById('template_build').value;
             myiframe=document.createElement("iframe");
             myiframe.name="showframe" ;
             myiframe.width="600";
@@ -24,7 +27,19 @@ l.layout {
             myiframe.src="${url}";
             document.getElementById('show').innerHTML = "";
             document.getElementById('show').appendChild(myiframe);
-            alert("${rootURL}")
+
+            templateTester.dumpReport(agentPort,buildId, function(t) {
+                    document.getElementById('rendered_template').innerHTML = t.responseObject()[0];
+                    var consoleOutput = t.responseObject()[1];
+                    if(consoleOutput.length == 0) {
+                        document.getElementById('output').style.display = 'none';
+                    } else {
+                        document.getElementById('output').style.display = 'block';
+                        document.getElementById('console_output').innerHTML = consoleOutput;
+                        alert(consoleOutput);
+                        console.log(consoleOutput);
+                    }
+                });
             return false;
                    }"""
 
@@ -36,9 +51,9 @@ l.layout {
             h3(_("description"))
             form(action: "", method: "post", name: "templateTest", onSubmit: "return onSubmit();") {
                 table {
-//                    f.entry(title: _("Jelly/Groovy Template File Name")) {
-//                        f.textbox(name: "template_file_name", id: "template_file_name", clazz: "required", checkUrl: "'templateFileCheck?value='+this.value")
-//                    }
+                    f.entry(title: _("input agent port")) {
+                        f.textbox(name: "agent_Port", id: "agent_Port", clazz: "required")
+                    }
                     f.entry(title: _("Build To Dump")) {
                         select(name: "template_build", id: "template_build") {
                             my.project.builds.each { build ->
@@ -54,6 +69,12 @@ l.layout {
             div(id: "show") {
                 hr()
                 h3(_("Template Console Output1"))
+            }
+            div(id: "rendered_template")
+            div(id: "output", style: "display:none;") {
+                hr()
+                h3(_("Template Console Output"))
+                pre(id: "console_output", clazz: "console-output")
             }
 
 

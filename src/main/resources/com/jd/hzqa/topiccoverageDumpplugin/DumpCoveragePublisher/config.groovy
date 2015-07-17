@@ -14,11 +14,10 @@ f.entry(title: _("description2"), help: "/plugin/topic-coverageDump-plugin/help/
         "the user to disable the publisher, while maintaining the settings")) {
     f.checkbox(name: "project_disabled", checked: instance?.disabled)
 }
+f.entry(title: _("Project more"), help: "/plugin/topic-coverageDump-plugin/help/projectConfig/globalRecipientList.html") {
+    f.textbox(name: "project_more", value: configured ? instance.more : "8888")
+}
 
 //使更多菜单在扩展中限制
-f.advanced(title: _("More Settings")) {
-    f.entry(title: _("Project Agent Port"), help: "/plugin/topic-coverageDump-plugin/help/projectConfig/globalRecipientList.html") {
-        f.textbox(name: "agent_port", value: configured ? instance.agentPort : "1001", checkUrl:
-                "'${rootURL}/publisher/DumpCoveragePublisher/AgentPortCheck?value='+encodeURIComponent(this.value)")
-    }
-}
+//f.advanced(title: _("More Settings")) {
+//}

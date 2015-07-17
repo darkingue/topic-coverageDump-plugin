@@ -12,6 +12,7 @@ import jenkins.model.JenkinsLocationConfiguration;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -35,13 +36,19 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
     private final static Logger LOG = Logger.getLogger(DumpCoveragePublisherDescriptor.class.getName());
 
     /**
-     * Jenkins's own URL, to put into the e-mail.
+     * Jenkins's own URL
      */
     private transient String hudsonUrl;
 
-    private List<GroovyScriptPath> defaultClasspath = new ArrayList<GroovyScriptPath>();
-
     private boolean requireAdminForTemplateTesting = false;
+    private String agentPort = "";
+    private String more = " --";
+
+    //    @DataBoundConstructor
+    //    public DumpCoveragePublisherDescriptor(String project_agentPort) {
+    //        super();
+    //        this.agentPort = project_agentPort;
+    //    }
 
     @Override
     public String getDisplayName() {
@@ -56,13 +63,17 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
         return Jenkins.getInstance().getRootUrl();
     }
 
+    public String getAgent_port() {
+        return agentPort;
+    }
+
+    public String getMore() {
+        return more;
+    }
+
     public boolean isAdminRequiredForTemplateTesting() {
         LOG.debug("#############" + requireAdminForTemplateTesting);
         return requireAdminForTemplateTesting;
-    }
-
-    public List<GroovyScriptPath> getDefaultClasspath() {
-        return defaultClasspath;
     }
 
     @Override public boolean isApplicable(Class<? extends AbstractProject> jobType) {
@@ -83,7 +94,8 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
         //        } else {
         //            requireAdminForTemplateTesting = false;
         //        }
-
+        more = nullify(req.getParameter("project_more"));
+        agentPort = nullify(req.getParameter("project_agentPort"));
         requireAdminForTemplateTesting = req.hasParameter("ext_mailer_require_admin_for_template_testing");
 
         //        // specify List-ID information
@@ -102,11 +114,6 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
         }
         return v;
     }
-
-    //    @Override
-    //    public String getHelpFile() {
-    //        return "/plugin/email-ext/help/main.html";
-    //    }
 
     /*
     * 提供校验参数的 url 访问形式
