@@ -52,7 +52,9 @@ l.layout {
             form(action: "", method: "post", name: "templateTest", onSubmit: "return onSubmit();") {
                 table {
                     f.entry(title: _("input agent port")) {
-                        f.textbox(name: "agent_Port", id: "agent_Port", clazz: "required")
+                        f.textbox(name: "agent_Port", id: "agent_Port", clazz: "required",
+                                checkUrl:"'jaCoCoAgentCheck?value='+this.value"
+                        )
                     }
                     f.entry(title: _("Build To Dump")) {
                         select(name: "template_build", id: "template_build") {

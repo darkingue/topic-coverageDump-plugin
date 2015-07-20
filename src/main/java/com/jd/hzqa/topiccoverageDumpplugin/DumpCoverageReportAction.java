@@ -71,7 +71,7 @@ public class DumpCoverageReportAction implements Action {
     }
 
     //    检查report 是否存在
-    public FormValidation doJaCoCoReportFileCheck(@QueryParameter final String value) {
+    public FormValidation doJaCoCoAgentCheck(@QueryParameter final String value) {
         // first check in the default resources area...
         InputStream inputStream = getClass().getClassLoader()
                 .getResourceAsStream("com/jd/hzqa/topiccoverageDumpplugin/jacoco/" + value);

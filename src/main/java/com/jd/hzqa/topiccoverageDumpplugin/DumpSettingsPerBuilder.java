@@ -23,11 +23,13 @@ import java.io.IOException;
 public class DumpSettingsPerBuilder extends Builder {
 
     private final String name;
+    private final String port;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public DumpSettingsPerBuilder(String name) {
+    public DumpSettingsPerBuilder(String name, String port) {
         this.name = name;
+        this.port = port;
     }
 
     /**
@@ -35,6 +37,10 @@ public class DumpSettingsPerBuilder extends Builder {
      */
     public String getName() {
         return name;
+    }
+
+    public String getPort() {
+        return port;
     }
 
     @Override
@@ -63,8 +69,8 @@ public class DumpSettingsPerBuilder extends Builder {
      * is marked as public so that it can be accessed from views.
      * <p/>
      * <p/>
-     * See <tt>topic-coverageDump-plugin/src/main/resources/com/jd/hzqa/topiccoverageDumpplugin/DumpSettingsPerBuilder/*.jelly</tt> for the actual HTML fragment
-     * for the configuration screen.
+     * See <tt>topic-coverageDump-plugin/src/main/resources/com/jd/hzqa/topiccoverageDumpplugin/DumpSettingsPerBuilder/*.jelly</tt>
+     * for the actual HTML fragment for the configuration screen.
      */
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
@@ -98,6 +104,15 @@ public class DumpSettingsPerBuilder extends Builder {
                 return FormValidation.error("Please set a name");
             if (value.length() < 4)
                 return FormValidation.warning("Isn't the name too short?");
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckPort(@QueryParameter String value)
+                throws IOException, ServletException {
+            if (value.length() == 0)
+                return FormValidation.error("Please set a number");
+            if (value.length() != 4)
+                return FormValidation.warning("wrong port number");
             return FormValidation.ok();
         }
 
