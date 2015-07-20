@@ -103,9 +103,9 @@ public class DumpCoverageReportAction implements Action {
             for (int i = 0; i < build.getEnvironments().size(); i++) {
                 System.out.println("!!!!!build.getEnvironments().size() " + build.getEnvironments().get(i));
             }
-            System.out.println("!!!!!build.build.build.getModuleRoot().getName =" + build.getModuleRoot().getName());
+            System.out.println("!!!!!build.getModuleRoot().getName =" + build.getModuleRoot().getName());
             System.out.println(
-                    "!!!!!build.build.build.getModuleRoot().getBaseName =" + build.getModuleRoot().getBaseName());
+                    "!!!!!build.getModuleRoot().getBaseName =" + build.getModuleRoot().getBaseName());
 
             FilePath filePath = build.getWorkspace();
             String jobFile = filePath.getRemote();
@@ -119,7 +119,7 @@ public class DumpCoverageReportAction implements Action {
             System.out.println(
                     "###########jobFile = " + jobFile + " More = " + DumpCoveragePublisher.descriptor()
                             .getMore());
-//             可以通过 config 读出当前job属性
+            //             可以通过 config 读出当前job属性
             System.out.println("########### project.getConfigFile() " + project.getConfigFile());
             System.out.println("########### project.getConfigFile() " + project.getConfigFile());
             if (!build.getBuildVariables().isEmpty()) {
