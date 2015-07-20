@@ -1,0 +1,8 @@
+<?jelly escape-by-default='true'?>
+<!--
+  This view is used to render the installed plugins page.
+-->
+<div>
+    This plugin can show the coverage of app in real time
+    <a href="http://www.baidu.com">MORE!</a>
+</div>
