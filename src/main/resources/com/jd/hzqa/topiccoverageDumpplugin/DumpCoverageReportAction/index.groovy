@@ -18,6 +18,7 @@ l.layout {
     l.main_panel {
         st.bind(var: "templateTester", value: my)
         script """function onSubmit() {
+            var agentIP = document.getElementById('agent_Ip').value;
             var agentPort = document.getElementById('agent_Port').value;
             var buildId = document.getElementById('template_build').value;
             myiframe=document.createElement("iframe");
@@ -28,16 +29,18 @@ l.layout {
             document.getElementById('show').innerHTML = "";
             document.getElementById('show').appendChild(myiframe);
 
-            templateTester.dumpReport(agentPort,buildId, function(t) {
-                    document.getElementById('rendered_template').innerHTML = t.responseObject()[0];
+            templateTester.dumpReport(agentIP,agentPort,buildId, function(t) {
+                    document.getElementById('ConsoleException').innerHTML = t.responseObject()[0];
                     var consoleOutput = t.responseObject()[1];
                     if(consoleOutput.length == 0) {
                         document.getElementById('output').style.display = 'none';
                     } else {
                         document.getElementById('output').style.display = 'block';
                         document.getElementById('console_output').innerHTML = consoleOutput;
+                        document.getElementById('show').style.display = 'none';
                         alert(consoleOutput);
                         console.log(consoleOutput);
+
                     }
                 });
             return false;
@@ -51,9 +54,12 @@ l.layout {
             h3(_("description"))
             form(action: "", method: "post", name: "templateTest", onSubmit: "return onSubmit();") {
                 table {
+                    f.entry(title: _("input agent ip")) {
+                        f.textbox(name: "agent_Ip", id: "agent_Ip", clazz: "required"
+                        )
+                    }
                     f.entry(title: _("input agent port")) {
-                        f.textbox(name: "agent_Port", id: "agent_Port", clazz: "required",
-                                checkUrl:"'jaCoCoAgentCheck?value='+this.value"
+                        f.textbox(name: "agent_Port", id: "agent_Port", clazz: "required"
                         )
                     }
                     f.entry(title: _("Build To Dump")) {
@@ -70,12 +76,12 @@ l.layout {
             }
             div(id: "show") {
                 hr()
-                h3(_("Template Console Output1"))
+                h3(_("Coverage Report"))
             }
-            div(id: "rendered_template")
+            div(id: "ConsoleException")
             div(id: "output", style: "display:none;") {
                 hr()
-                h3(_("Template Console Output"))
+                h3(_("Console Output"))
                 pre(id: "console_output", clazz: "console-output")
             }
 

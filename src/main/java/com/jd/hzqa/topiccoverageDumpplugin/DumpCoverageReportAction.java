@@ -13,6 +13,7 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.log4j.Logger;
 import org.kohsuke.stapler.*;
 import org.kohsuke.stapler.bind.BoundObjectTable;
@@ -70,8 +71,8 @@ public class DumpCoverageReportAction implements Action {
         return builder.toString();
     }
 
-    //    检查report 是否存在
-    public FormValidation doJaCoCoAgentCheck(@QueryParameter final String value) {
+    //    检查覆盖率文件是否存在
+    public FormValidation doJaCoCoReportCheck(@QueryParameter final String value) {
         // first check in the default resources area...
         InputStream inputStream = getClass().getClassLoader()
                 .getResourceAsStream("com/jd/hzqa/topiccoverageDumpplugin/jacoco/" + value);
@@ -86,14 +87,44 @@ public class DumpCoverageReportAction implements Action {
         return FormValidation.ok();
     }
 
+    private boolean telentPortIsok(String ip, int port) {
+
+        boolean isok = false;
+        TelnetClient telnet;
+        telnet = new TelnetClient();
+        try {
+            telnet.connect(ip, port);
+            isok = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            isok = false;
+        } finally {
+            try {
+                telnet.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return isok;
+    }
+
     @JavaScriptMethod
-    public String[] dumpReport(String agent, String buildId) {
+    public String[] dumpReport(String ip, int port, String buildId) {
 
         String[] result = new String[2];
         result[0] = StringUtils.EMPTY;
         result[1] = StringUtils.EMPTY;
 
         try {
+
+            //检查 agent 可用性
+            if (!telentPortIsok(ip, port)) {
+                Date time = new Date();
+                String msgtext = time + "\n" + ip + ":" + port + " is not reachable!";
+                System.out.println(msgtext);
+                result[1] = msgtext;
+            }
+
             //            Plugin plugin = Jenkins.getInstance().getPlugin("topic-coverageDump-plugin");
 
             AbstractBuild<?, ?> build = project.getBuild(buildId);
@@ -131,8 +162,6 @@ public class DumpCoverageReportAction implements Action {
             } else {
                 System.out.println("build.getBuildVariables()  is null!!!!!!!!");
             }
-            result[0] = "执行dump成功! 结果1" + filePath.getBaseName();
-            result[1] = "执行dump成功! 结果2";
 
         } catch (Exception ex) {
             result[0] = renderError(ex);
