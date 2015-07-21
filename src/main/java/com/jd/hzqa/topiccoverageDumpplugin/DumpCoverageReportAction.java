@@ -123,44 +123,46 @@ public class DumpCoverageReportAction implements Action {
                 String msgtext = time + "\n" + ip + ":" + port + " is not reachable!";
                 System.out.println(msgtext);
                 result[1] = msgtext;
-            }
-
-            //            Plugin plugin = Jenkins.getInstance().getPlugin("topic-coverageDump-plugin");
-
-            AbstractBuild<?, ?> build = project.getBuild(buildId);
-            System.out.println("!!!!!build.getDescription() =" + build.getDescription());
-            System.out.println("!!!!!build.build.getFullDisplayName() =" + build.getFullDisplayName());
-            System.out.println("!!!!!build.build.getBuildVariables() =" + build.getBuildVariables());
-            for (int i = 0; i < build.getEnvironments().size(); i++) {
-                System.out.println("!!!!!build.getEnvironments().size() " + build.getEnvironments().get(i));
-            }
-            System.out.println("!!!!!build.getModuleRoot().getName =" + build.getModuleRoot().getName());
-            System.out.println(
-                    "!!!!!build.getModuleRoot().getBaseName =" + build.getModuleRoot().getBaseName());
-
-            FilePath filePath = build.getWorkspace();
-            String jobFile = filePath.getRemote();
-
-            //生成覆盖率报告
-            //            DumpCoverageExecutor.dumpJaCoCoReport(filePath.getRemote(), "172.24.2.29",Integer.parseInt(DumpCoveragePublisher.descriptor().getAgent_port()));
-
-            System.out.println(
-                    "###########jobFile = " + jobFile + " agentPort = " + DumpCoveragePublisher.descriptor()
-                            .getAgent_port());
-            System.out.println(
-                    "###########jobFile = " + jobFile + " More = " + DumpCoveragePublisher.descriptor()
-                            .getMore());
-            //             可以通过 config 读出当前job属性
-            System.out.println("########### project.getConfigFile() " + project.getConfigFile());
-            System.out.println("########### project.getConfigFile() " + project.getConfigFile());
-            if (!build.getBuildVariables().isEmpty()) {
-                System.out.println("build.getBuildVariables() " + build.getBuildVariables());
-
-                for (Map.Entry<String, String> entry : build.getBuildVariables().entrySet()) {
-                    System.out.println("########### " + entry.getKey() + "--->" + entry.getValue());
-                }
             } else {
-                System.out.println("build.getBuildVariables()  is null!!!!!!!!");
+
+                //            Plugin plugin = Jenkins.getInstance().getPlugin("topic-coverageDump-plugin");
+
+                AbstractBuild<?, ?> build = project.getBuild(buildId);
+                System.out.println("!!!!!build.getDescription() =" + build.getDescription());
+                System.out.println("!!!!!build.getDescription() =" + build.getDisplayName());
+                System.out.println("!!!!!build.build.getFullDisplayName() =" + build.getFullDisplayName());
+                System.out.println("!!!!!build.build.getBuildVariables() =" + build.getBuildVariables());
+                for (int i = 0; i < build.getEnvironments().size(); i++) {
+                    System.out.println("!!!!!build.getEnvironments().size() " + build.getEnvironments().get(i));
+                }
+                System.out.println("!!!!!build.getModuleRoot().getName =" + build.getModuleRoot().getName());
+                System.out.println(
+                        "!!!!!build.getModuleRoot().getBaseName =" + build.getModuleRoot().getBaseName());
+
+                FilePath filePath = build.getWorkspace();
+                String jobFile = filePath.getRemote();
+
+                //生成覆盖率报告
+                DumpCoverageExecutor.dumpJaCoCoReport(filePath.getRemote() + "/wycds-web", ip, port);
+
+                System.out.println(
+                        "###########jobFile = " + jobFile + " agentPort = " + DumpCoveragePublisher.descriptor()
+                                .getAgent_port());
+                System.out.println(
+                        "###########jobFile = " + jobFile + " More = " + DumpCoveragePublisher.descriptor()
+                                .getMore());
+                //             可以通过 config 读出当前job属性
+                System.out.println("########### project.getConfigFile() " + project.getConfigFile());
+                System.out.println("########### project.getConfigFile() " + project.getConfigFile());
+                if (!build.getBuildVariables().isEmpty()) {
+                    System.out.println("build.getBuildVariables() " + build.getBuildVariables());
+
+                    for (Map.Entry<String, String> entry : build.getBuildVariables().entrySet()) {
+                        System.out.println("########### " + entry.getKey() + "--->" + entry.getValue());
+                    }
+                } else {
+                    System.out.println("build.getBuildVariables()  is null!!!!!!!!");
+                }
             }
 
         } catch (Exception ex) {

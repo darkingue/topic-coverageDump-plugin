@@ -10,6 +10,7 @@ def d = namespace("jelly:define")
 import hudson.Functions
 import com.jd.hzqa.topiccoverageDumpplugin.DumpCoveragePublisher
 
+http://127.0.0.1:8080/jenkins/job/wycds_web_2.2.0/ws/wycds-web/target/coveragereport/index.html
 def url = "${rootURL}/plugin/topic-coverageDump-plugin/site/jacoco/index.html";
 def requiresAdmin = app.getDescriptor("com.jd.hzqa.topiccoverageDumpplugin.DumpCoveragePublisher").adminRequiredForTemplateTesting
 def hasPermission = requiresAdmin ? hudson.Functions.hasPermission(app.ADMINISTER) : hudson.Functions.hasPermission(it.project, it.project.CONFIGURE);
