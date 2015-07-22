@@ -1,5 +1,6 @@
 package com.jd.hzqa.topiccoverageDumpplugin;
 
+import com.jd.hzqa.topiccoverageDumpplugin.utils.Search;
 import hudson.FilePath;
 import hudson.Plugin;
 import hudson.model.AbstractBuild;
@@ -15,6 +16,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.log4j.Logger;
+import org.junit.Test;
 import org.kohsuke.stapler.*;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
@@ -44,7 +46,6 @@ public class DumpCoverageReportAction implements Action {
     public DumpCoverageReportAction(AbstractProject<?, ?> project) {
         this.project = project;
         System.out.println("###project.getCustomWorkspace()" + project.getCustomWorkspace());
-        System.out.println("###agentport " + agentport);
 
     }
 
@@ -109,51 +110,40 @@ public class DumpCoverageReportAction implements Action {
     }
 
     @JavaScriptMethod
-    public String[] dumpReport(String ip, int port, String buildId) {
+    public String loadBuildJobSpace(String buildId) {
+        return project.getUrl();
+    }
 
-        String[] result = new String[2];
+    @JavaScriptMethod
+    public String[] dumpReport(String svn_Src_Dir, String ip, int port, String buildId) {
+
+        String[] result = new String[4];
         result[0] = StringUtils.EMPTY;
         result[1] = StringUtils.EMPTY;
+        result[2] = StringUtils.EMPTY;
+        result[3] = StringUtils.EMPTY;
 
         try {
 
             //检查 agent 可用性
             if (!telentPortIsok(ip, port)) {
                 Date time = new Date();
-                String msgtext = time + "\n" + ip + ":" + port + " is not reachable!";
-                System.out.println(msgtext);
-                result[1] = msgtext;
+                String agentCheck = time + "\n" + ip + ":" + port + " is not reachable!";
+                System.out.println(agentCheck);
+                result[1] = agentCheck;
             } else {
-
-                //            Plugin plugin = Jenkins.getInstance().getPlugin("topic-coverageDump-plugin");
-
+                //Plugin plugin = Jenkins.getInstance().getPlugin("topic-coverageDump-plugin");
                 AbstractBuild<?, ?> build = project.getBuild(buildId);
                 System.out.println("!!!!!build.getDescription() =" + build.getDescription());
-                System.out.println("!!!!!build.getDescription() =" + build.getDisplayName());
-                System.out.println("!!!!!build.build.getFullDisplayName() =" + build.getFullDisplayName());
-                System.out.println("!!!!!build.build.getBuildVariables() =" + build.getBuildVariables());
-                for (int i = 0; i < build.getEnvironments().size(); i++) {
-                    System.out.println("!!!!!build.getEnvironments().size() " + build.getEnvironments().get(i));
-                }
-                System.out.println("!!!!!build.getModuleRoot().getName =" + build.getModuleRoot().getName());
-                System.out.println(
-                        "!!!!!build.getModuleRoot().getBaseName =" + build.getModuleRoot().getBaseName());
+                System.out.println("!!!!!build.getDisplayName() =" + build.getDisplayName());
+                System.out.println("!!!!!build.getFullDisplayName() =" + build.getFullDisplayName());
+                System.out.println("!!!!!build.getUpUrl() =" + build.getUpUrl());
+                System.out.println("!!!!!build.getUrl() =" + build.getUrl());
+                System.out.println("!!!!!build.getBuildStatusUrl() =" + build.getBuildStatusUrl());
+                System.out.println("!!!!!build.getSearchUrl() =" + build.getSearchUrl());
+                System.out.println("!!!!!project.getLastSuccessfulBuild() =" + project.getLastSuccessfulBuild());
 
-                FilePath filePath = build.getWorkspace();
-                String jobFile = filePath.getRemote();
-
-                //生成覆盖率报告
-                DumpCoverageExecutor.dumpJaCoCoReport(filePath.getRemote() + "/wycds-web", ip, port);
-
-                System.out.println(
-                        "###########jobFile = " + jobFile + " agentPort = " + DumpCoveragePublisher.descriptor()
-                                .getAgent_port());
-                System.out.println(
-                        "###########jobFile = " + jobFile + " More = " + DumpCoveragePublisher.descriptor()
-                                .getMore());
-                //             可以通过 config 读出当前job属性
-                System.out.println("########### project.getConfigFile() " + project.getConfigFile());
-                System.out.println("########### project.getConfigFile() " + project.getConfigFile());
+                //
                 if (!build.getBuildVariables().isEmpty()) {
                     System.out.println("build.getBuildVariables() " + build.getBuildVariables());
 
@@ -162,6 +152,41 @@ public class DumpCoverageReportAction implements Action {
                     }
                 } else {
                     System.out.println("build.getBuildVariables()  is null!!!!!!!!");
+                }
+                //
+                for (int i = 0; i < build.getEnvironments().size(); i++) {
+                    System.out.println("!!!!!build.getEnvironments().size() " + build.getEnvironments().get(i));
+                }
+                System.out.println("!!!!!build.getModuleRoot().getName =" + build.getModuleRoot().getName());
+
+                for (FilePath module : build.getModuleRoots()) {
+                    System.out.println("!!!!!build.getModuleRoots() =" + module);
+                }
+
+                //可以通过 config 读出当前job属性
+                System.out.println("########### project.getConfigFile() " + project.getConfigFile());
+                System.out.println(
+                        "########### project.getConfigFile() " + project.getConfigFile().getXStream());
+                File workspace = new File(build.getWorkspace().getRemote());
+                //检查当前 job的 workspace是否包含 target 目录,如果包含,则证明该 job 没有 module
+                if (Search.searchDir(workspace, "target") != null) {
+                    //                   直接传递workspace 目录给覆盖率dump 用
+                    result[3] = "./target";
+                    if (!DumpCoverageExecutor
+                            .dumpJaCoCoReport(String.valueOf(workspace), ip, port)) {
+                        result[2] = "覆盖率报告生成失败!";
+                    }
+
+                } else {
+                    //                    检查 workspace 下面是否包含传入的 module 目录
+                    if (Search.searchDir(workspace, svn_Src_Dir) != null) {
+                        result[3] = "./" + svn_Src_Dir + "/target";
+                        //传递 module 目录给覆盖率dump 用
+                        if (!DumpCoverageExecutor
+                                .dumpJaCoCoReport(String.valueOf(Search.searchDir(workspace, svn_Src_Dir)), ip, port)) {
+                            result[2] = "覆盖率报告生成失败!";
+                        }
+                    }
                 }
             }
 
