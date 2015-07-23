@@ -21,36 +21,4 @@ public class DumpCoverageExecutor {
 
     }
 
-    public static boolean doFileCheck(String fileName) {
-        boolean isFileExist = false;
-        File file = new File(fileName);
-        //如果文件夹不存在则创建
-        if (!file.exists() && !file.isDirectory()) {
-            isFileExist = false;
-            System.out.println("//不存在");
-            //            file.mkdir();
-        } else {
-            isFileExist = true;
-            System.out.println("//目录存在");
-        }
-
-        return isFileExist;
-    }
-
-    public static boolean isFileListContain(String base, String fileName) {
-        boolean isContain = false;
-        File file = new File(base);
-        //如果文件夹不存在则创建
-        if (!file.exists() && !file.isDirectory()) {
-
-            System.out.println("//不存在");
-            //            file.mkdir();
-        } else {
-            isContain = true;
-            System.out.println("//目录存在");
-        }
-
-        return isContain;
-    }
-
 }

@@ -41,14 +41,6 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
     private transient String hudsonUrl;
 
     private boolean requireAdminForTemplateTesting = false;
-    private String agentPort = "";
-    private String more = " --";
-
-    //    @DataBoundConstructor
-    //    public DumpCoveragePublisherDescriptor(String project_agentPort) {
-    //        super();
-    //        this.agentPort = project_agentPort;
-    //    }
 
     @Override
     public String getDisplayName() {
@@ -61,14 +53,6 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
 
     public String getHudsonUrl() {
         return Jenkins.getInstance().getRootUrl();
-    }
-
-    public String getAgent_port() {
-        return agentPort;
-    }
-
-    public String getMore() {
-        return more;
     }
 
     public boolean isAdminRequiredForTemplateTesting() {
@@ -88,22 +72,7 @@ public final class DumpCoveragePublisherDescriptor extends BuildStepDescriptor<P
     @Override
     public boolean configure(StaplerRequest req, JSONObject formData)
             throws FormException {
-
-        //        if (req.hasParameter("ext_mailer_require_admin_for_template_testing")) {
-        //            requireAdminForTemplateTesting = nullify(req.getParameter("ext_mailer_list_id")) != null;
-        //        } else {
-        //            requireAdminForTemplateTesting = false;
-        //        }
-        more = nullify(req.getParameter("project_more"));
-        agentPort = nullify(req.getParameter("project_agentPort"));
-        requireAdminForTemplateTesting = req.hasParameter("ext_mailer_require_admin_for_template_testing");
-
-        //        // specify List-ID information
-        //        if (req.hasParameter("ext_mailer_use_list_id")) {
-        //            listId = nullify(req.getParameter("ext_mailer_list_id"));
-        //        } else {
-        //            listId = null;
-        //        }
+        requireAdminForTemplateTesting = req.hasParameter("require_admin_for_DumpCoverageReport");
         save();
         return super.configure(req, formData);
     }

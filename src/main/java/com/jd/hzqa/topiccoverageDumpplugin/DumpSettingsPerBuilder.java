@@ -9,6 +9,7 @@ import hudson.model.ParametersAction;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -49,10 +50,7 @@ public class DumpSettingsPerBuilder extends Builder {
         // Since this is a dummy, we just say 'hello world' and call that a build.
 
         // This also shows how you can consult the global configuration of the builder
-        if (getDescriptor().getUseFrench())
-            listener.getLogger().println("Bonjour, " + name + "!");
-        else
-            listener.getLogger().println("Hello, " + name + "!");
+
         return true;
     }
 
@@ -62,6 +60,10 @@ public class DumpSettingsPerBuilder extends Builder {
     @Override
     public DescriptorImpl getDescriptor() {
         return (DescriptorImpl) super.getDescriptor();
+    }
+
+    public static DescriptorImpl descriptor() {
+        return Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class);
     }
 
     /**
@@ -81,6 +83,7 @@ public class DumpSettingsPerBuilder extends Builder {
          * If you don't want fields to be persisted, use <tt>transient</tt>.
          */
         private boolean useFrench;
+        private int grobalAgentPort;
 
         /**
          * In order to load the persisted global configuration, you have to call load() in the constructor.
@@ -132,21 +135,23 @@ public class DumpSettingsPerBuilder extends Builder {
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             // To persist global configuration information,
             // set that to properties and call save().
-            useFrench = formData.getBoolean("useFrench");
+            //            grobalAgentPort = formData.getInt("globalAgentPort");
+            grobalAgentPort = Integer.parseInt(nullify(req.getParameter("globalAgentPort")));
             // ^Can also use req.bindJSON(this, formData);
             //  (easier when there are many fields; need set* methods for this, like setUseFrench)
             save();
             return super.configure(req, formData);
         }
 
-        /**
-         * This method returns true if the global configuration says we should speak French.
-         * <p/>
-         * The method name is bit awkward because global.jelly calls this method to determine the initial state of the
-         * checkbox by the naming convention.
-         */
-        public boolean getUseFrench() {
-            return useFrench;
+        private String nullify(String v) {
+            if (v != null && v.length() == 0) {
+                v = null;
+            }
+            return v;
+        }
+
+        public int getGrobalAgentPort() {
+            return grobalAgentPort;
         }
     }
 }

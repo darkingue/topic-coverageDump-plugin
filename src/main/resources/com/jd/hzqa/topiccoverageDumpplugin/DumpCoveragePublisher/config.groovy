@@ -10,12 +10,9 @@ d = namespace("jelly:define")
 
 def configured = instance != null
 
-f.entry(title: _("description2"), help: "/plugin/topic-coverageDump-plugin/help/projectConfig/disable.html", description: _("Allows " +
+f.entry(title: _("description"), help: "/plugin/topic-coverageDump-plugin/help/projectConfig/disable.html", description: _("Allows " +
         "the user to disable the publisher, while maintaining the settings")) {
     f.checkbox(name: "project_disabled", checked: instance?.disabled)
-}
-f.entry(title: _("Project more"), help: "/plugin/topic-coverageDump-plugin/help/projectConfig/globalRecipientList.html") {
-    f.textbox(name: "project_more", value: configured ? instance.more : "8888")
 }
 
 //使更多菜单在扩展中限制

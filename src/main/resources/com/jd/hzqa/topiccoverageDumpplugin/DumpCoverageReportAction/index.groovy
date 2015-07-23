@@ -18,16 +18,19 @@ l.layout {
     st.include(it: my.project, page: "sidepanel")
     l.main_panel {
         st.bind(var: "templateTester", value: my)
-        script """ function onSubmit() {
+        script """
+        function onSubmit() {
             var svn_Src_Dir = document.getElementById('svn_Src_Dir').value;
             var agentIP = document.getElementById('agent_Ip').value;
             var agentPort = document.getElementById('agent_Port').value;
-            var buildId = document.getElementById('template_build').value;
+            var buildId;
+            (document.getElementById('template_build').value != null) ? (buildId = document.getElementById('template_build').value) : (buildId = "");
             document.getElementById('show').style.display = 'none';
 
 
             templateTester.dumpReport(svn_Src_Dir, agentIP, agentPort, buildId, function(t) {
                 document.getElementById('ConsoleException').innerHTML = t.responseObject()[0];
+                var ConsoleException = t.responseObject()[0];
                 var agentCheck = t.responseObject()[1];
                 var dumpUnsuccess = t.responseObject()[2];
                 var realFile = t.responseObject()[3]
@@ -41,6 +44,9 @@ l.layout {
                 } else if (dumpUnsuccess.length != 0) {
                     document.getElementById('show').style.display = 'none';
                     alert(dumpUnsuccess);
+                } else if (ConsoleException.length != 0) {
+                    document.getElementById('show').style.display = 'none';
+                    alert(ConsoleException);
                 } else {
                     myiframe = document.createElement("iframe");
                     myiframe.name = "showframe";
@@ -63,16 +69,15 @@ l.layout {
             h3(_("description"))
             form(action: "", method: "post", name: "templateTest", onSubmit: "return onSubmit();") {
                 table {
-                    f.entry(title: _("svn_Src_Dir")) {
-                        f.textbox(name: "svn_Src_Dir", id: "svn_Src_Dir", clazz: "required"
-                        )
+                    f.entry(title: _("svn_Src_Dir"), description: "如果需要dump覆盖率的工程为当前project的一个module, 请填写该module" +
+                            "目录名,默认为当前project") {
+                        f.textbox(name: "svn_Src_Dir", id: "svn_Src_Dir")
                     }
-                    f.entry(title: _("input agent ip")) {
-                        f.textbox(name: "agent_Ip", id: "agent_Ip")
+                    f.entry(title: _("input agent ip"), description: "请输入需要dump覆盖率的主机IP") {
+                        f.textbox(name: "agent_Ip", id: "agent_Ip", clazz: "required")
                     }
-                    f.entry(title: _("input agent port")) {
-                        f.textbox(name: "agent_Port", id: "agent_Port", clazz: "required"
-                        )
+                    f.entry(title: _("input agent port"), description: "请输入agent的端口名,如不输入,默认使用全局config中的agentport 设置") {
+                        f.textbox(name: "agent_Port", id: "agent_Port")
                     }
                     f.entry(title: _("Build To Dump")) {
                         select(name: "template_build", id: "template_build") {

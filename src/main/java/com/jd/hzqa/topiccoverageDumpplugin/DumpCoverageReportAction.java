@@ -1,37 +1,21 @@
 package com.jd.hzqa.topiccoverageDumpplugin;
 
 import com.jd.hzqa.topiccoverageDumpplugin.utils.Search;
-import hudson.FilePath;
-import hudson.Plugin;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
-import hudson.model.Descriptor;
 import hudson.util.FormValidation;
-import hudson.util.Secret;
-import hudson.util.StreamTaskListener;
 import jenkins.model.Jenkins;
-import net.sf.json.JSONObject;
-import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.log4j.Logger;
-import org.junit.Test;
-import org.kohsuke.stapler.*;
-import org.kohsuke.stapler.bind.BoundObjectTable;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
-import org.kohsuke.stapler.lang.Klass;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpSession;
-import java.io.*;
-import java.lang.reflect.Type;
-import java.security.Principal;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
 
 /**
  * Created by qqs on 15/7/9.
@@ -41,12 +25,8 @@ public class DumpCoverageReportAction implements Action {
 
     private final AbstractProject<?, ?> project;
 
-    String agentport = "xxxxx";
-
     public DumpCoverageReportAction(AbstractProject<?, ?> project) {
         this.project = project;
-        System.out.println("###project.getCustomWorkspace()" + project.getCustomWorkspace());
-
     }
 
     public String getIconFileName() {
@@ -115,7 +95,7 @@ public class DumpCoverageReportAction implements Action {
     }
 
     @JavaScriptMethod
-    public String[] dumpReport(String svn_Src_Dir, String ip, int port, String buildId) {
+    public String[] dumpReport(String svn_Src_Dir, String ip, String port, String buildId) {
 
         String[] result = new String[4];
         result[0] = StringUtils.EMPTY;
@@ -124,68 +104,58 @@ public class DumpCoverageReportAction implements Action {
         result[3] = StringUtils.EMPTY;
 
         try {
+            int realPort;
 
+            if (port.isEmpty()) {
+                realPort = DumpSettingsPerBuilder.descriptor().getGrobalAgentPort();
+            } else {
+                realPort = Integer.parseInt(port);
+            }
+            //检查是否存在构建成功的 build
+            if ((buildId.equals("")) ? true : project.getBuild(buildId).getBuildStatusUrl()
+                    .equals("red.png")) {
+                result[2] = "请选择一个状态为成功的build!";
+            }
             //检查 agent 可用性
-            if (!telentPortIsok(ip, port)) {
+            else if (!telentPortIsok(ip, realPort)) {
                 Date time = new Date();
-                String agentCheck = time + "\n" + ip + ":" + port + " is not reachable!";
+                String agentCheck = time + "\n" + "请检查 " + ip + ":" + realPort + " 是否为有效的agent端口!";
                 System.out.println(agentCheck);
                 result[1] = agentCheck;
             } else {
-                //Plugin plugin = Jenkins.getInstance().getPlugin("topic-coverageDump-plugin");
                 AbstractBuild<?, ?> build = project.getBuild(buildId);
-                System.out.println("!!!!!build.getDescription() =" + build.getDescription());
-                System.out.println("!!!!!build.getDisplayName() =" + build.getDisplayName());
-                System.out.println("!!!!!build.getFullDisplayName() =" + build.getFullDisplayName());
-                System.out.println("!!!!!build.getUpUrl() =" + build.getUpUrl());
-                System.out.println("!!!!!build.getUrl() =" + build.getUrl());
-                System.out.println("!!!!!build.getBuildStatusUrl() =" + build.getBuildStatusUrl());
-                System.out.println("!!!!!build.getSearchUrl() =" + build.getSearchUrl());
-                System.out.println("!!!!!project.getLastSuccessfulBuild() =" + project.getLastSuccessfulBuild());
+                //                //可以通过 config 读出当前job属性
+                //                System.out.println("########### project.getConfigFile() " + project.getConfigFile());
+                //                System.out.println(
+                //                        "########### project.getConfigFile() " + project.getConfigFile().getXStream());
 
-                //
-                if (!build.getBuildVariables().isEmpty()) {
-                    System.out.println("build.getBuildVariables() " + build.getBuildVariables());
-
-                    for (Map.Entry<String, String> entry : build.getBuildVariables().entrySet()) {
-                        System.out.println("########### " + entry.getKey() + "--->" + entry.getValue());
-                    }
-                } else {
-                    System.out.println("build.getBuildVariables()  is null!!!!!!!!");
-                }
-                //
-                for (int i = 0; i < build.getEnvironments().size(); i++) {
-                    System.out.println("!!!!!build.getEnvironments().size() " + build.getEnvironments().get(i));
-                }
-                System.out.println("!!!!!build.getModuleRoot().getName =" + build.getModuleRoot().getName());
-
-                for (FilePath module : build.getModuleRoots()) {
-                    System.out.println("!!!!!build.getModuleRoots() =" + module);
-                }
-
-                //可以通过 config 读出当前job属性
-                System.out.println("########### project.getConfigFile() " + project.getConfigFile());
-                System.out.println(
-                        "########### project.getConfigFile() " + project.getConfigFile().getXStream());
                 File workspace = new File(build.getWorkspace().getRemote());
                 //检查当前 job的 workspace是否包含 target 目录,如果包含,则证明该 job 没有 module
-                if (Search.searchDir(workspace, "target") != null) {
-                    //                   直接传递workspace 目录给覆盖率dump 用
-                    result[3] = "./target";
-                    if (!DumpCoverageExecutor
-                            .dumpJaCoCoReport(String.valueOf(workspace), ip, port)) {
-                        result[2] = "覆盖率报告生成失败!";
-                    }
 
+                if (svn_Src_Dir.isEmpty()) {
+                    if (Search.searchDir(workspace, "target") != null) {
+                        //                   直接传递workspace 目录给覆盖率dump 用
+                        result[3] = "./target";
+                        if (!DumpCoverageExecutor
+                                .dumpJaCoCoReport(String.valueOf(workspace), ip, realPort)) {
+                            result[2] = "覆盖率报告生成失败! 详细请查看 console 日志";
+                        }
+                    } else {
+                        result[2] = "覆盖率报告生成失败! 请确认需要dump覆盖率的工程路径是否是一个module,如果是请填入module目录名";
+                    }
                 } else {
                     //                    检查 workspace 下面是否包含传入的 module 目录
                     if (Search.searchDir(workspace, svn_Src_Dir) != null) {
                         result[3] = "./" + svn_Src_Dir + "/target";
                         //传递 module 目录给覆盖率dump 用
                         if (!DumpCoverageExecutor
-                                .dumpJaCoCoReport(String.valueOf(Search.searchDir(workspace, svn_Src_Dir)), ip, port)) {
-                            result[2] = "覆盖率报告生成失败!";
+                                .dumpJaCoCoReport(String.valueOf(Search.searchDir(workspace, svn_Src_Dir)), ip,
+                                        realPort)) {
+                            result[2] = "覆盖率报告生成失败! 详细请查看 console 日志";
                         }
+                    } else {
+                        result[2] = "当前project不存在路径名为 " + project.getName() + "/" + svn_Src_Dir + "/ 的module !";
+
                     }
                 }
             }
