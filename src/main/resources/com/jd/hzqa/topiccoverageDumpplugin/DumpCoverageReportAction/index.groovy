@@ -50,7 +50,7 @@ l.layout {
                 } else {
                     myiframe = document.createElement("iframe");
                     myiframe.name = "showframe";
-                    myiframe.width = "600";
+                    myiframe.width = "900";
                     myiframe.height = "400";
                     myiframe.src = "${url}" + realFile + "/coveragereport/index.html";
                     document.getElementById('show').appendChild(myiframe);
