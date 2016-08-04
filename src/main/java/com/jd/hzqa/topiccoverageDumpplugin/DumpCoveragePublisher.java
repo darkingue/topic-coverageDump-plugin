@@ -1,26 +1,17 @@
 package com.jd.hzqa.topiccoverageDumpplugin;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.wangyin.qa.tools.jacoco.JacocoUtil;
-import groovy.lang.GroovyClassLoader;
 import hudson.Launcher;
-import hudson.matrix.MatrixAggregatable;
-import hudson.matrix.MatrixAggregator;
-import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixRun;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
-import jenkins.model.Jenkins;;
+import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+;
 
 /*
 * 构建完成自动执行的扩展

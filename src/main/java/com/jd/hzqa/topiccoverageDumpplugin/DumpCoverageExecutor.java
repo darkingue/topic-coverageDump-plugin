@@ -1,6 +1,6 @@
 package com.jd.hzqa.topiccoverageDumpplugin;
 
-import com.wangyin.qa.tools.jacoco.JacocoUtil;
+import com.jd.hzqa.topiccoverageDumpplugin.utils.JacocoUtil;
 
 /**
  * Created by qqs on 15/7/15.
