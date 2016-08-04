@@ -18,7 +18,7 @@
 
     <groupId>com.jd.hzqa</groupId>
     <artifactId>topic-coverageDump-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Dump Coverage Snapshot</name>
     <description>This plugin can show the coverage of app in real time</description>
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>com.wangyin</groupId>
             <artifactId>qa.tools.topic.coverage</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <!--&lt;!&ndash; If you want to depend on other plugins:-->
         <dependency>
