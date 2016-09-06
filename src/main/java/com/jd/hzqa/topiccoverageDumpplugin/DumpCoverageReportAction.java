@@ -125,6 +125,7 @@ public class DumpCoverageReportAction implements Action {
             } else {
                 AbstractBuild<?, ?> build = project.getBuild(buildId);
 
+                System.out.println("判断 build  node 状态开始");
                 File workspace;
                 if (build.getBuiltOn() == Jenkins.getInstance()) {
                     System.out.println("构建节点为 master，workspace  " + build.getWorkspace().getRemote());
