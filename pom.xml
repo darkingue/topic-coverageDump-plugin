@@ -18,7 +18,7 @@
 
     <groupId>com.jd.hzqa</groupId>
     <artifactId>topic-coverageDump-plugin</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Dump Coverage Snapshot</name>
     <description>This plugin can show the coverage of app in real time</description>
