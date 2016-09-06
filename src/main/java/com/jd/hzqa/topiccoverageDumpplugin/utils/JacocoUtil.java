@@ -12,10 +12,7 @@ import org.jacoco.report.FileMultiReportOutput;
 import org.jacoco.report.IReportVisitor;
 import org.jacoco.report.html.HTMLFormatter;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -199,5 +196,18 @@ public class JacocoUtil {
             throw e;
         }
 
+    }
+
+
+    public static byte[] readStream(InputStream inStream) throws Exception {
+        ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len = -1;
+        while ((len = inStream.read(buffer)) != -1) {
+            outSteam.write(buffer, 0, len);
+        }
+        outSteam.close();
+        inStream.close();
+        return outSteam.toByteArray();
     }
 }

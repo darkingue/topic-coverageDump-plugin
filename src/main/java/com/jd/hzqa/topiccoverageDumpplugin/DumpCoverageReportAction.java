@@ -1,9 +1,9 @@
 package com.jd.hzqa.topiccoverageDumpplugin;
 
+import com.jd.hzqa.topiccoverageDumpplugin.utils.CopyToSlaveUtils;
 import com.jd.hzqa.topiccoverageDumpplugin.utils.Search;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Action;
+import hudson.FilePath;
+import hudson.model.*;
 import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
@@ -124,12 +124,17 @@ public class DumpCoverageReportAction implements Action {
                 result[1] = agentCheck;
             } else {
                 AbstractBuild<?, ?> build = project.getBuild(buildId);
-                //                //可以通过 config 读出当前job属性
-                //                System.out.println("########### project.getConfigFile() " + project.getConfigFile());
-                //                System.out.println(
-                //                        "########### project.getConfigFile() " + project.getConfigFile().getXStream());
 
-                File workspace = new File(build.getWorkspace().getRemote());
+                File workspace;
+                if (build.getBuiltOn() == Jenkins.getInstance()) {
+                    System.out.println("构建节点为 master，workspace  " + build.getWorkspace().getRemote());
+                    workspace = new File(build.getWorkspace().getRemote());
+                } else {
+                    FilePath projectWorkspaceOnMaster = copyToMaster(build, "**/*");
+                    System.out.println("构建节点为 slave");
+                    workspace = new File(projectWorkspaceOnMaster.getRemote());
+                }
+
                 //检查当前 job的 workspace是否包含 target 目录,如果包含,则证明该 job 没有 module
 
                 if (svn_Src_Dir.isEmpty()) {
@@ -175,5 +180,22 @@ public class DumpCoverageReportAction implements Action {
 
     public AbstractProject<?, ?> getProject() {
         return project;
+    }
+
+    /**
+     * 拷贝 slave node workspacce下面的指定内容到 master workspace 目录
+     */
+    public FilePath copyToMaster(AbstractBuild build, String includes)
+            throws IOException, InterruptedException {
+        FilePath destinationFilePath = CopyToSlaveUtils.getProjectWorkspaceOnMaster(build);
+        FilePath projectWorkspaceOnSlave = build.getProject().getWorkspace();
+        System.out.println("[copy-to-master] Copying all from " + projectWorkspaceOnSlave.toURI() + " on " +
+                Computer
+                        .currentComputer().getNode() + " to " + destinationFilePath.toURI() + " on the master");
+
+        projectWorkspaceOnSlave.copyRecursiveTo(includes, destinationFilePath);
+
+        return destinationFilePath;
+
     }
 }
