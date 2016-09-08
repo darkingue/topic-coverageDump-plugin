@@ -1,9 +1,12 @@
 package com.jd.hzqa.topiccoverageDumpplugin;
 
+import com.jd.hzqa.topiccoverageDumpplugin.utils.CopyDirectory;
 import com.jd.hzqa.topiccoverageDumpplugin.utils.CopyToSlaveUtils;
 import com.jd.hzqa.topiccoverageDumpplugin.utils.Search;
 import hudson.FilePath;
-import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.Action;
 import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
@@ -22,7 +25,6 @@ import java.util.Date;
  */
 public class DumpCoverageReportAction implements Action {
     private final static Logger LOG = Logger.getLogger(DumpCoverageReportAction.class.getName());
-
     private final AbstractProject<?, ?> project;
 
     public DumpCoverageReportAction(AbstractProject<?, ?> project) {
@@ -131,20 +133,28 @@ public class DumpCoverageReportAction implements Action {
                     System.out.println("构建节点为 master，workspace  " + build.getWorkspace().getRemote());
                     workspace = new File(build.getWorkspace().getRemote());
                 } else {
-                    FilePath projectWorkspaceOnMaster = copyToMaster(build, "**/*");
                     System.out.println("构建节点为 slave");
+                    FilePath projectWorkspaceOnMaster = copyToMaster(build, "**/*");
                     workspace = new File(projectWorkspaceOnMaster.getRemote());
                 }
 
                 //检查当前 job的 workspace是否包含 target 目录,如果包含,则证明该 job 没有 module
-
+                String buidpath = build.getLogFile().toPath().getParent() + "/archive/dumpCov";
+                result[3] = build.getUrl() + "artifact/dumpCov/index.html";
+                System.out.println("result[3] ## " + result[3]);
                 if (svn_Src_Dir.isEmpty()) {
                     if (Search.searchDir(workspace, "target") != null) {
                         //                   直接传递workspace 目录给覆盖率dump 用
-                        result[3] = "./target";
                         if (!DumpCoverageExecutor
                                 .dumpJaCoCoReport(String.valueOf(workspace), ip, realPort)) {
                             result[2] = "覆盖率报告生成失败! 详细请查看 console 日志";
+                        } else {
+                            System.out.println("转存覆盖率结果到 build 目录");
+                            String reportPath = workspace.toPath() + "/target/coveragereport";
+
+                            File src = new File(reportPath);
+                            File dest = new File(buidpath);
+                            CopyDirectory.copyFolder(src, dest);
                         }
                     } else {
                         result[2] = "覆盖率报告生成失败! 请确认需要dump覆盖率的工程路径是否是一个module,如果是请填入module目录名";
@@ -152,12 +162,18 @@ public class DumpCoverageReportAction implements Action {
                 } else {
                     //                    检查 workspace 下面是否包含传入的 module 目录
                     if (Search.searchDir(workspace, svn_Src_Dir) != null) {
-                        result[3] = "./" + svn_Src_Dir + "/target";
                         //传递 module 目录给覆盖率dump 用
                         if (!DumpCoverageExecutor
                                 .dumpJaCoCoReport(String.valueOf(Search.searchDir(workspace, svn_Src_Dir)), ip,
                                         realPort)) {
                             result[2] = "覆盖率报告生成失败! 详细请查看 console 日志";
+                        } else {
+                            System.out.println("转存覆盖率结果到 build 目录");
+                            String reportPath = workspace.toPath() + svn_Src_Dir + "/target/coveragereport";
+                            System.out.println(reportPath);
+                            File src = new File(reportPath);
+                            File dest = new File(buidpath);
+                            CopyDirectory.copyFolder(src, dest);
                         }
                     } else {
                         result[2] = "当前project不存在路径名为 " + project.getName() + "/" + svn_Src_Dir + "/ 的module !";
@@ -168,6 +184,7 @@ public class DumpCoverageReportAction implements Action {
 
         } catch (Exception ex) {
             result[0] = renderError(ex);
+            ex.printStackTrace();
         }
         return result;
     }
@@ -189,10 +206,10 @@ public class DumpCoverageReportAction implements Action {
     public FilePath copyToMaster(AbstractBuild build, String includes)
             throws IOException, InterruptedException {
         FilePath destinationFilePath = CopyToSlaveUtils.getProjectWorkspaceOnMaster(build);
-        FilePath projectWorkspaceOnSlave = build.getProject().getWorkspace();
+        FilePath projectWorkspaceOnSlave = build.getWorkspace();
         System.out.println("[copy-to-master] Copying all from " + projectWorkspaceOnSlave.toURI() + " on " +
-                Computer
-                        .currentComputer().getNode() + " to " + destinationFilePath.toURI() + " on the master");
+                build.getBuiltOn().getNodeName() + " to " + destinationFilePath.toURI() + " on the "
+                + "master");
 
         projectWorkspaceOnSlave.copyRecursiveTo(includes, destinationFilePath);
 

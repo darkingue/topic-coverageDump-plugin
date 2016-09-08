@@ -7,11 +7,7 @@ def st = namespace("jelly:stapler")
 def t = namespace("/lib/hudson")
 def d = namespace("jelly:define")
 
-import hudson.Functions
-import com.jd.hzqa.topiccoverageDumpplugin.DumpCoveragePublisher
-
 http://127.0.0.1:8080/jenkins/job/wycds_web_2.2.0/ws/wycds-web/target/coveragereport/index.html
-def url = "${rootURL}/" + my.project.url + "ws/";
 def requiresAdmin = app.getDescriptor("com.jd.hzqa.topiccoverageDumpplugin.DumpCoveragePublisher").adminRequiredForTemplateTesting
 def hasPermission = requiresAdmin ? hudson.Functions.hasPermission(app.ADMINISTER) : hudson.Functions.hasPermission(it.project, it.project.CONFIGURE);
 l.layout {
@@ -33,7 +29,7 @@ l.layout {
                 var ConsoleException = t.responseObject()[0];
                 var agentCheck = t.responseObject()[1];
                 var dumpUnsuccess = t.responseObject()[2];
-                var realFile = t.responseObject()[3]
+                var realReportUrl = t.responseObject()[3]
                 document.getElementById('show').innerHTML = "";
                 document.getElementById('show').style.display = 'none';
 
@@ -52,7 +48,7 @@ l.layout {
                     myiframe.name = "showframe";
                     myiframe.width = "900";
                     myiframe.height = "400";
-                    myiframe.src = "${url}" + realFile + "/coveragereport/index.html";
+                    myiframe.src = "${rootURL}"+"/"+realReportUrl;
                     document.getElementById('show').appendChild(myiframe);
                     document.getElementById('show').style.display = 'block';
                 }
