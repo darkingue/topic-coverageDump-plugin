@@ -138,11 +138,11 @@ public class DumpCoverageReportAction implements Action {
                     workspace = new File(projectWorkspaceOnMaster.getRemote());
                 }
 
-                //检查当前 job的 workspace是否包含 target 目录,如果包含,则证明该 job 没有 module
                 String buidpath = build.getLogFile().toPath().getParent() + "/archive/dumpCov";
                 result[3] = build.getUrl() + "artifact/dumpCov/index.html";
-                System.out.println("result[3] ## " + result[3]);
+
                 if (svn_Src_Dir.isEmpty()) {
+                    //检查当前 job的 workspace是否包含 target 目录,如果包含,则证明该 job 没有 module
                     if (Search.searchDir(workspace, "target") != null) {
                         //                   直接传递workspace 目录给覆盖率dump 用
                         if (!DumpCoverageExecutor
@@ -160,9 +160,8 @@ public class DumpCoverageReportAction implements Action {
                         result[2] = "覆盖率报告生成失败! 请确认需要dump覆盖率的工程路径是否是一个module,如果是请填入module目录名";
                     }
                 } else {
-                    //                    检查 workspace 下面是否包含传入的 module 目录
+                    //检查 workspace 下面是否包含传入的 module 目录
                     if (Search.searchDir(workspace, svn_Src_Dir) != null) {
-                        //传递 module 目录给覆盖率dump 用
                         if (!DumpCoverageExecutor
                                 .dumpJaCoCoReport(String.valueOf(Search.searchDir(workspace, svn_Src_Dir)), ip,
                                         realPort)) {
@@ -170,7 +169,6 @@ public class DumpCoverageReportAction implements Action {
                         } else {
                             System.out.println("转存覆盖率结果到 build 目录");
                             String reportPath = workspace.toPath() + svn_Src_Dir + "/target/coveragereport";
-                            System.out.println(reportPath);
                             File src = new File(reportPath);
                             File dest = new File(buidpath);
                             CopyDirectory.copyFolder(src, dest);

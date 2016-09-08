@@ -16,13 +16,15 @@ l.layout {
         st.bind(var: "templateTester", value: my)
         script """
         function onSubmit() {
+            document.getElementById('dumpform').style.display = 'none';
+            document.getElementById('show').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
             var svn_Src_Dir = document.getElementById('svn_Src_Dir').value;
             var agentIP = document.getElementById('agent_Ip').value;
             var agentPort = document.getElementById('agent_Port').value;
             var buildId;
             (document.getElementById('template_build').value != null) ? (buildId = document.getElementById('template_build').value) : (buildId = "");
-            document.getElementById('show').style.display = 'none';
-
 
             templateTester.dumpReport(svn_Src_Dir, agentIP, agentPort, buildId, function(t) {
                 document.getElementById('ConsoleException').innerHTML = t.responseObject()[0];
@@ -31,23 +33,22 @@ l.layout {
                 var dumpUnsuccess = t.responseObject()[2];
                 var realReportUrl = t.responseObject()[3]
                 document.getElementById('show').innerHTML = "";
-                document.getElementById('show').style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dumpform').style.display = 'block';
+
 
 
                 if (agentCheck.length != 0) {
-                    document.getElementById('show').style.display = 'none';
                     alert(agentCheck);
                 } else if (dumpUnsuccess.length != 0) {
-                    document.getElementById('show').style.display = 'none';
                     alert(dumpUnsuccess);
                 } else if (ConsoleException.length != 0) {
-                    document.getElementById('show').style.display = 'none';
                     alert(ConsoleException);
                 } else {
                     myiframe = document.createElement("iframe");
                     myiframe.name = "showframe";
-                    myiframe.width = "900";
-                    myiframe.height = "400";
+                    myiframe.width = "100%";
+                    myiframe.height = "500";
                     myiframe.src = "${rootURL}"+"/"+realReportUrl;
                     document.getElementById('show').appendChild(myiframe);
                     document.getElementById('show').style.display = 'block';
@@ -63,7 +64,9 @@ l.layout {
         h1(my.displayName)
         if (hasPermission) {
             h3(_("description"))
-            form(action: "", method: "post", name: "templateTest", onSubmit: "return onSubmit();") {
+            form(id: "dumpform", action: "", method: "post", name: "templateTest", onsubmit:
+                    "return onSubmit();" +
+                            "") {
                 table {
                     f.entry(title: _("svn_Src_Dir"), description: "如果需要dump覆盖率的工程为当前project的一个module, 请填写该module" +
                             "目录名,默认为当前project") {
@@ -82,17 +85,20 @@ l.layout {
                             }
                         }
                     }
+
                     f.entry {
                         f.submit(value: _("DUMP NOW!"))
                     }
                 }
             }
+
+            div(id: "loading", style: "position:absolute; color:#0000FF;left:423px; top:261px; width:227px; " +
+                    "height:20px; z-index:1;display:none") {
+                h3(_("正在载入中,请稍等......"))
+            }
             div(id: "show") {
-                hr()
-                h3(_("Coverage Report"))
             }
             div(id: "ConsoleException")
-
         } else {
             // redirect to the root in the case that someone tries to do
             // bad stuff...

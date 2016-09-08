@@ -10,7 +10,7 @@ public class CopyDirectory {
 
     /**
      * 复制一个目录及其子目录、文件到另外一个目录
-     *
+     * 非线程安全
      * @param src
      * @param dest
      * @throws IOException
@@ -18,7 +18,7 @@ public class CopyDirectory {
     public static void copyFolder(File src, File dest) throws IOException {
         if (src.isDirectory()) {
             if (!dest.exists()) {
-                dest.mkdir();
+                dest.mkdirs();
             }
             String files[] = src.list();
             for (String file : files) {
