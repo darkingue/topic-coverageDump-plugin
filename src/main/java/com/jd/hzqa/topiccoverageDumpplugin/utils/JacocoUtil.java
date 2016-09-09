@@ -81,12 +81,12 @@ public class JacocoUtil {
             writer.visitDumpCommand(true, false);
 
             if (reader.read()) {
-                System.out.println("dump 成功");
+                LOGGER.log(Level.INFO, "dump 成功");
                 dumpToHTML(DumpFile);
                 dumpSuccess = true;
             } else {
                 dumpSuccess = false;
-                System.out.println("从 agent 获取 dump 文件失败");
+                LOGGER.log(Level.SEVERE, "从 agent 获取 dump 文件失败");
 
             }
         } catch (FileNotFoundException e) {
