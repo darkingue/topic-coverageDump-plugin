@@ -147,7 +147,7 @@ public class DumpCoverageReportAction implements Action {
                     workspace = new File(build.getWorkspace().getRemote());
                 } else {
                     LOGGER.log(Level.INFO, " 构建节点为 slave");
-                    FilePath projectWorkspaceOnMaster = copyToMaster(build, "**/*");
+                    FilePath projectWorkspaceOnMaster = copyToMaster(build, "**/*", "**/*.jar,**/*.zip,**/*.tar");
                     workspace = new File(projectWorkspaceOnMaster.getRemote());
                 }
 
@@ -214,7 +214,7 @@ public class DumpCoverageReportAction implements Action {
     /**
      * 拷贝 slave node workspacce下面的指定内容到 master workspace 目录
      */
-    public FilePath copyToMaster(AbstractBuild build, String includes)
+    public FilePath copyToMaster(AbstractBuild build, String includes, String excludes)
             throws IOException, InterruptedException {
         FilePath destinationFilePath = CopyToSlaveUtils.getProjectWorkspaceOnMaster(build);
         FilePath projectWorkspaceOnSlave = build.getWorkspace();
@@ -222,7 +222,7 @@ public class DumpCoverageReportAction implements Action {
                 build.getBuiltOn().getNodeName() + " to " + destinationFilePath.toURI() + " on the "
                 + "master");
 
-        projectWorkspaceOnSlave.copyRecursiveTo(includes, destinationFilePath);
+        projectWorkspaceOnSlave.copyRecursiveTo(includes, excludes, destinationFilePath);
 
         return destinationFilePath;
 
