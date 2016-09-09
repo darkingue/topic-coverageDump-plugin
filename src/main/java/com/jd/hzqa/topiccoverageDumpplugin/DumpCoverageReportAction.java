@@ -11,7 +11,6 @@ import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.log4j.Logger;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
@@ -19,12 +18,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by qqs on 15/7/9.
  */
 public class DumpCoverageReportAction implements Action {
-    private final static Logger LOG = Logger.getLogger(DumpCoverageReportAction.class.getName());
+    private final static Logger LOGGER = java.util.logging.Logger
+            .getLogger(DumpCoverageReportAction.class.getName());
     private final AbstractProject<?, ?> project;
 
     public DumpCoverageReportAction(AbstractProject<?, ?> project) {
@@ -99,8 +101,14 @@ public class DumpCoverageReportAction implements Action {
     @JavaScriptMethod
     public String getDefaultCovReportUrl(String buildId) {
         AbstractBuild<?, ?> build = project.getBuild(buildId);
+        String buidpath = build.getLogFile().toPath().getParent() + "/archive/dumpCov/";
+        File file = new File(buidpath);
+        if (file.exists()) {
+            return build.getUrl() + "artifact/dumpCov/index.html";
+        } else {
+            return "null";
 
-        return build.getUrl() + "artifact/dumpCov/index.html";
+        }
     }
 
     @JavaScriptMethod
@@ -129,18 +137,16 @@ public class DumpCoverageReportAction implements Action {
             else if (!telentPortIsok(ip, realPort)) {
                 Date time = new Date();
                 String agentCheck = time + "\n" + "请检查 " + ip + ":" + realPort + " 是否为有效的agent端口!";
-                System.out.println(agentCheck);
+                LOGGER.log(Level.SEVERE, agentCheck);
                 result[1] = agentCheck;
             } else {
                 AbstractBuild<?, ?> build = project.getBuild(buildId);
-
-                System.out.println("判断 build  node 状态开始");
                 File workspace;
                 if (build.getBuiltOn() == Jenkins.getInstance()) {
-                    System.out.println("构建节点为 master，workspace  " + build.getWorkspace().getRemote());
+                    LOGGER.log(Level.INFO, "构建节点为 master，workspace  " + build.getWorkspace().getRemote());
                     workspace = new File(build.getWorkspace().getRemote());
                 } else {
-                    System.out.println("构建节点为 slave");
+                    LOGGER.log(Level.INFO, " 构建节点为 slave");
                     FilePath projectWorkspaceOnMaster = copyToMaster(build, "**/*");
                     workspace = new File(projectWorkspaceOnMaster.getRemote());
                 }
@@ -156,7 +162,7 @@ public class DumpCoverageReportAction implements Action {
                                 .dumpJaCoCoReport(String.valueOf(workspace), ip, realPort)) {
                             result[2] = "覆盖率报告生成失败! 详细请查看 console 日志";
                         } else {
-                            System.out.println("转存覆盖率结果到 build 目录");
+                            LOGGER.log(Level.INFO, "转存覆盖率结果到 build 目录");
                             String reportPath = workspace.toPath() + "/target/coveragereport";
 
                             File src = new File(reportPath);
@@ -174,7 +180,7 @@ public class DumpCoverageReportAction implements Action {
                                         realPort)) {
                             result[2] = "覆盖率报告生成失败! 详细请查看 console 日志";
                         } else {
-                            System.out.println("转存覆盖率结果到 build 目录");
+                            LOGGER.log(Level.INFO, "model模式，转存覆盖率结果到 build 目录");
                             String reportPath = workspace.toPath() + svn_Src_Dir + "/target/coveragereport";
                             File src = new File(reportPath);
                             File dest = new File(buidpath);
@@ -212,7 +218,7 @@ public class DumpCoverageReportAction implements Action {
             throws IOException, InterruptedException {
         FilePath destinationFilePath = CopyToSlaveUtils.getProjectWorkspaceOnMaster(build);
         FilePath projectWorkspaceOnSlave = build.getWorkspace();
-        System.out.println("[copy-to-master] Copying all from " + projectWorkspaceOnSlave.toURI() + " on " +
+        LOGGER.log(Level.INFO, "[copy-to-master] Copying all from " + projectWorkspaceOnSlave.toURI() + " on " +
                 build.getBuiltOn().getNodeName() + " to " + destinationFilePath.toURI() + " on the "
                 + "master");
 

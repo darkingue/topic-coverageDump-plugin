@@ -72,14 +72,19 @@ l.layout {
            document.getElementById('show').innerHTML = "";
            templateTester.getDefaultCovReportUrl(selectbuild, function(t) {
            var historyReportUrl =  t.responseObject();
-             myiframe = document.createElement("iframe");
+           if(historyReportUrl == "null"){
+                    alert("对不起,本次构建没有覆盖率存档！请确认")
+                    }else{
+                    myiframe = document.createElement("iframe");
                     myiframe.name = "showframe";
                     myiframe.width = "100%";
                     myiframe.height = "500";
                     myiframe.src = "${rootURL}"+"/"+historyReportUrl+"";
                     document.getElementById('show').appendChild(myiframe);
                     document.getElementById('show').style.display = 'block';
-           });}
+                    }
+           });
+           }
         }
         """
 

@@ -190,7 +190,7 @@ public class JacocoUtil {
                 DumpFile));
         try {
             generator.create();
-            LOGGER.log(Level.SEVERE, "处理完毕,请打开 " + reportDirectory + "/index.html 查看报告");
+            LOGGER.log(Level.INFO, "处理完毕,请打开 " + reportDirectory + "/index.html 查看报告");
         } catch (IOException e) {
             throw e;
         }
