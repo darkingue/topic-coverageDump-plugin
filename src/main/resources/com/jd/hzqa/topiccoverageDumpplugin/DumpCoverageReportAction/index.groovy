@@ -98,7 +98,7 @@ l.layout {
 
                 table(id: "table1") {
                     f.entry(title: _("svn_Src_Dir"), description: "如果需要dump覆盖率的工程为当前project的一个module, " +
-                            "请填写该module目录名,默认为当前project", field: "entry1") {
+                            "请填写该module目录名,默认为当前project", field: "entry1", help: "aaaa") {
                         f.textbox(name: "svn_Src_Dir", id: "svn_Src_Dir")
                     }
                     f.entry(title: _("input agent ip"), description: "请输入需要dump覆盖率的主机IP") {
@@ -109,8 +109,9 @@ l.layout {
                     }
                 }
                 table(id: "table2") {
-                    f.entry {
-                        select(name: "template_build", id: "template_build", onchange: "gradeChange()") {
+                    f.entry(title: "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp") {
+                        select(name: "template_build", id: "template_build", onchange:
+                                "gradeChange()") {
                             my.project.builds.each { build ->
                                 f.option(value: build.id, "#${build.number} (${build.result})")
                             }
@@ -118,7 +119,7 @@ l.layout {
                     }
                 }
                 table(id: "table3") {
-                    f.entry {
+                    f.entry(title: "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp") {
                         f.submit(value: _("DUMP NOW!"))
                     }
                 }
