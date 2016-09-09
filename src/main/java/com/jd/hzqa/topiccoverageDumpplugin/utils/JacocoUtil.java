@@ -16,15 +16,15 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by qqs on 15/5/27.
  */
 public class JacocoUtil {
-    //    private static final String DumpFile = "./wycds-web";
-    //    private static final String DESTFILE = DumpFile + "/target/jacoco-client.exec";
-    //    private static final String ADDRESS = "172.24.2.29";
-    //    private static final int PORT = 10001;
+    private final static Logger LOGGER = Logger.getLogger(JacocoUtil.class.getName());
+
     private final String title;
     private final File executionDataFile;
     private final File classesDirectory;
@@ -190,14 +190,12 @@ public class JacocoUtil {
                 DumpFile));
         try {
             generator.create();
-            System.out.println("处理完毕,请打开 " + reportDirectory + "/index.html 查看报告");
-
+            LOGGER.log(Level.SEVERE, "处理完毕,请打开 " + reportDirectory + "/index.html 查看报告");
         } catch (IOException e) {
             throw e;
         }
 
     }
-
 
     public static byte[] readStream(InputStream inStream) throws Exception {
         ByteArrayOutputStream outSteam = new ByteArrayOutputStream();

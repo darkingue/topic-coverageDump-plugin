@@ -43,7 +43,7 @@ l.layout {
                 } else if (dumpUnsuccess.length != 0) {
                     alert(dumpUnsuccess);
                 } else if (ConsoleException.length != 0) {
-                    alert(ConsoleException);
+                    alert("未知异常，请联系管理员查看更多信息!");
                 } else {
                     myiframe = document.createElement("iframe");
                     myiframe.name = "showframe";
@@ -57,6 +57,31 @@ l.layout {
             return false;
         }
         """
+        script """
+        function gradeChange() {
+           var template_buildObj= document.getElementById('template_build');
+           var selectbuild=template_buildObj.value
+           var lastbuild="${my.project.builds.id[0]}"
+           if(selectbuild==lastbuild){
+           document.getElementById('table1').style.display ='block' ;
+           document.getElementById('table3').style.display = 'block';
+           document.getElementById('show').innerHTML = "";
+           }else{
+           document.getElementById('table1').style.display = 'none';
+           document.getElementById('table3').style.display = 'none';
+           document.getElementById('show').innerHTML = "";
+           templateTester.getDefaultCovReportUrl(selectbuild, function(t) {
+           var historyReportUrl =  t.responseObject();
+             myiframe = document.createElement("iframe");
+                    myiframe.name = "showframe";
+                    myiframe.width = "100%";
+                    myiframe.height = "500";
+                    myiframe.src = "${rootURL}"+"/"+historyReportUrl+"";
+                    document.getElementById('show').appendChild(myiframe);
+                    document.getElementById('show').style.display = 'block';
+           });}
+        }
+        """
 
 //        <iframe src="http://localhost:63342/topic-coverageDump-plugin/src/main/webapp/site/jacoco.index
 //                .html" name="ifrm" id="ifrm" width="600" height="400"></iframe>
@@ -64,12 +89,11 @@ l.layout {
         h1(my.displayName)
         if (hasPermission) {
             h3(_("description"))
-            form(id: "dumpform", action: "", method: "post", name: "templateTest", onsubmit:
-                    "return onSubmit();" +
-                            "") {
-                table {
-                    f.entry(title: _("svn_Src_Dir"), description: "如果需要dump覆盖率的工程为当前project的一个module, 请填写该module" +
-                            "目录名,默认为当前project") {
+            form(id: "dumpform", action: "", method: "post", name: "templateTest", onsubmit: "return onSubmit();") {
+
+                table(id: "table1") {
+                    f.entry(title: _("svn_Src_Dir"), description: "如果需要dump覆盖率的工程为当前project的一个module, " +
+                            "请填写该module目录名,默认为当前project", field: "entry1") {
                         f.textbox(name: "svn_Src_Dir", id: "svn_Src_Dir")
                     }
                     f.entry(title: _("input agent ip"), description: "请输入需要dump覆盖率的主机IP") {
@@ -78,14 +102,17 @@ l.layout {
                     f.entry(title: _("input agent port"), description: "请输入agent的端口名,如不输入,默认使用全局config中的agentport 设置") {
                         f.textbox(name: "agent_Port", id: "agent_Port")
                     }
-                    f.entry(title: _("Build To Dump")) {
-                        select(name: "template_build", id: "template_build") {
+                }
+                table(id: "table2") {
+                    f.entry {
+                        select(name: "template_build", id: "template_build", onchange: "gradeChange()") {
                             my.project.builds.each { build ->
                                 f.option(value: build.id, "#${build.number} (${build.result})")
                             }
                         }
                     }
-
+                }
+                table(id: "table3") {
                     f.entry {
                         f.submit(value: _("DUMP NOW!"))
                     }
@@ -96,9 +123,9 @@ l.layout {
                     "height:20px; z-index:1;display:none") {
                 h3(_("正在载入中,请稍等......"))
             }
-            div(id: "show") {
-            }
+            div(id: "show")
             div(id: "ConsoleException")
+
         } else {
             // redirect to the root in the case that someone tries to do
             // bad stuff...

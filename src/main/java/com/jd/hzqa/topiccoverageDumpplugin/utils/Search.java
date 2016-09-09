@@ -45,8 +45,8 @@ public class Search {
 
     }
 
-    public static void main(String[] args) {
-        File base = new File("/Users/qqs/GitHub/topic-coverageDump-plugin/work/jobs/wycds_web_2.2.0/workspace");
-        System.out.println(Search.searchDir(base, "wycds-web"));
-    }
+//    public static void main(String[] args) {
+    //        File base = new File("/Users/qqs/GitHub/topic-coverageDump-plugin/work/jobs/wycds_web_2.2.0/workspace");
+    //        System.out.println(Search.searchDir(base, "wycds-web"));
+    //    }
 }

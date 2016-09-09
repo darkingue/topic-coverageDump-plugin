@@ -97,6 +97,13 @@ public class DumpCoverageReportAction implements Action {
     }
 
     @JavaScriptMethod
+    public String getDefaultCovReportUrl(String buildId) {
+        AbstractBuild<?, ?> build = project.getBuild(buildId);
+
+        return build.getUrl() + "artifact/dumpCov/index.html";
+    }
+
+    @JavaScriptMethod
     public String[] dumpReport(String svn_Src_Dir, String ip, String port, String buildId) {
 
         String[] result = new String[4];
