@@ -181,7 +181,7 @@ public class DumpCoverageReportAction implements Action {
                             result[2] = "覆盖率报告生成失败! 详细请查看 console 日志";
                         } else {
                             LOGGER.log(Level.INFO, "model模式，转存覆盖率结果到 build 目录");
-                            String reportPath = workspace.toPath() + svn_Src_Dir + "/target/coveragereport";
+                            String reportPath = workspace.toPath() + "/" + svn_Src_Dir + "/target/coveragereport";
                             File src = new File(reportPath);
                             File dest = new File(buidpath);
                             CopyDirectory.copyFolder(src, dest);
