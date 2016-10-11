@@ -98,7 +98,7 @@ l.layout {
 
                 table(id: "table1") {
                     f.entry(title: _("svn_Src_Dir"), description: "如果需要dump覆盖率的工程为当前project的一个module, " +
-                            "请填写该module目录名,默认为当前project", field: "entry1", help: "aaaa") {
+                            "请填写该module目录名,默认为当前project") {
                         f.textbox(name: "svn_Src_Dir", id: "svn_Src_Dir")
                     }
                     f.entry(title: _("input agent ip"), description: "请输入需要dump覆盖率的主机IP") {
